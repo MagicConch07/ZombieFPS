@@ -14,7 +14,10 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform _virtualCam;
     [SerializeField] private Transform _bodyObj;
     [SerializeField] private float _sensitivity = 0.1f;
+    [SerializeField] private float cameraRotationLimit;
 
+    private Quaternion rotationCharacter;
+    private Quaternion rotationCamera;
     private FPSInput.PlayerActions _inputAction;
     private Rigidbody _myrigid;
     private bool _isCursor = false;
@@ -29,6 +32,8 @@ public class PlayerMovement : MonoBehaviour
         _inputAction = _inputReader.FPSInputInstance.Player;
 
         _inputReader.SettingsEvent += SettingsHandle;
+        _inputReader.SprintEvent += SprintHandle;
+        _inputReader.SitEvent += SitHandle;
     }
 
     void Start()
@@ -51,17 +56,17 @@ public class PlayerMovement : MonoBehaviour
         _myrigid.MoveRotation(_myrigid.rotation * rotationYaw);
     }
 
-    //TODO : 이거 세팅을 따로 클래스로 뽑아내서 만들어야 함
-    //! 일단 여기다가 플레이어 움직임이 아닌 세팅도 넣겠음
-    private void SettingsHandle(bool isPush)
+    void FixedUpdate()
     {
-        _isCursor = !isPush;
-        Debug.Log(_isCursor);
-    }
+        Vector2 movement = _inputAction.Movement.ReadValue<Vector2>();
+        Vector3 moveVec = new Vector3(movement.x, 0, movement.y) * speed;
 
-    [SerializeField] private float cameraRotationLimit;
-    private Quaternion rotationCharacter;
-    private Quaternion rotationCamera;
+        moveVec = transform.TransformDirection(moveVec);
+
+        _myrigid.velocity = new Vector3(moveVec.x, _myrigid.velocity.y, moveVec.z);
+
+        //? 이건 절대 잊을 수 없지
+    }
 
     private void CameraRotation()
     {
@@ -100,16 +105,46 @@ public class PlayerMovement : MonoBehaviour
         return rotation;
     }
 
-    void FixedUpdate()
+    //TODO : 이거 세팅을 따로 클래스로 뽑아내서 만들어야 함
+    //! 일단 여기다가 플레이어 움직임이 아닌 세팅도 넣겠음
+    private void SettingsHandle(bool isPress)
     {
-        Vector2 movement = _inputAction.Movement.ReadValue<Vector2>();
-        Vector3 moveVec = new Vector3(movement.x, 0, movement.y) * speed;
+        _isCursor = !isPress;
+        Debug.Log(_isCursor);
+    }
 
-        moveVec = transform.TransformDirection(moveVec);
+    private void SprintHandle(bool isPress)
+    {
+        if (isPress == false)
+        {
+            speed = 12;
+            return;
+        }
 
-        _myrigid.velocity = new Vector3(moveVec.x, _myrigid.velocity.y, moveVec.z);
+        speed = 30;
+    }
 
-        //? 이건 절대 잊을 수 없지
+    private void MoveSit(bool isPress)
+    {
+        if (isPress == false)
+        {
+            _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, _virtualCam.transform.localPosition.y, _virtualCam.transform.localPosition.z);
+            return;
+        }
+
+        _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, -_virtualCam.transform.localPosition.y, _virtualCam.transform.localPosition.z);
+    }
+
+    private void SitHandle(bool isPress)
+    {
+        Debug.Log($"이거 왜 안돼?");
+        if (isPress == false)
+        {
+            _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, 0.7f, _virtualCam.transform.localPosition.z);
+            return;
+        }
+
+        _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, -0.7f, _virtualCam.transform.localPosition.z);
     }
 
 }

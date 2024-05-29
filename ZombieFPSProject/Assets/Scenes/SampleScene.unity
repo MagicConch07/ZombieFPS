@@ -157,9 +157,9 @@ MonoBehaviour:
   _virtualCam: {fileID: 1647963920}
   _bodyObj: {fileID: 1803408533}
   _sensitivity: 0.5
+  cameraRotationLimit: 60
   speed: 12
   mouseSpeed: 1
-  cameraRotationLimit: 60
 --- !u!54 &35728625
 Rigidbody:
   m_ObjectHideFlags: 0
