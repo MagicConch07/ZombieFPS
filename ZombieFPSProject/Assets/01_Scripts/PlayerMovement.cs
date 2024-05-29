@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
         _inputReader.SettingsEvent += SettingsHandle;
         _inputReader.SprintEvent += SprintHandle;
         _inputReader.SitEvent += SitHandle;
+        _inputReader.JumpEvent += JumpHandle;
     }
 
     void Start()
@@ -66,6 +67,14 @@ public class PlayerMovement : MonoBehaviour
         _myrigid.velocity = new Vector3(moveVec.x, _myrigid.velocity.y, moveVec.z);
 
         //? 이건 절대 잊을 수 없지
+    }
+
+    void OnDisable()
+    {
+        _inputReader.SettingsEvent -= SettingsHandle;
+        _inputReader.SprintEvent -= SprintHandle;
+        _inputReader.SitEvent -= SitHandle;
+        _inputReader.JumpEvent -= JumpHandle;
     }
 
     private void CameraRotation()
@@ -137,7 +146,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void SitHandle(bool isPress)
     {
-        Debug.Log($"이거 왜 안돼?");
         if (isPress == false)
         {
             _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, 0.7f, _virtualCam.transform.localPosition.z);
@@ -147,4 +155,26 @@ public class PlayerMovement : MonoBehaviour
         _virtualCam.transform.localPosition = new Vector3(_virtualCam.transform.localPosition.x, -0.7f, _virtualCam.transform.localPosition.z);
     }
 
+    [SerializeField] private LayerMask _groundLayer;
+
+    private void JumpHandle(bool isPress)
+    {
+        if (isPress == false) return;
+
+        RaycastHit[] hits = new RaycastHit[1];
+        Physics.RaycastNonAlloc(transform.position, Vector3.down, hits, _rayDistance, _groundLayer);
+        int hit = Physics.RaycastNonAlloc(transform.position, Vector3.down, hits, _rayDistance, _groundLayer);
+        if (hit != 0)
+        {
+            _myrigid.velocity = new Vector3(_myrigid.velocity.x, _jumpPower, _myrigid.velocity.z);
+        }
+    }
+    [SerializeField] private float _jumpPower = 5f;
+    [SerializeField] private float _rayDistance = 1.2f;
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawLine(transform.position, Vector3.down * _rayDistance);
+    }
 }
