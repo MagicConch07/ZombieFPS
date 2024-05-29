@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
@@ -9,94 +10,91 @@ using Vector3 = UnityEngine.Vector3;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private Rigidbody _myrigid;
-    public float speed = 15f;
-    public float mouseSpeed = 100f;
+    [SerializeField] private InputReader _inputReader;
     [SerializeField] private Transform _virtualCam;
     [SerializeField] private Transform _bodyObj;
 
+    private FPSInput.PlayerActions _inputAction;
+    private Rigidbody _myrigid;
     private bool _isCursor = false;
+    private float interpolationSpeed = 25.0f;
+
+    public float speed = 15f;
+    public float mouseSpeed = 100f;
+
 
     void Awake()
     {
         _myrigid = GetComponent<Rigidbody>();
+        _inputAction = _inputReader.FPSInputInstance.Player;
+
+        _inputReader.SettingsEvent += SettingsHandle;
     }
 
-    void Update()
+    void Start()
     {
+        rotationCharacter = _myrigid.transform.localRotation;
+        rotationCamera = _virtualCam.transform.localRotation;
+    }
+
+    void LateUpdate()
+    {
+        float x = Input.GetAxis("Mouse X");
+        float inputX = _inputAction.MouseView.ReadValue<Vector2>().x;
+
+
+        Debug.Log($"X : {x} // inputX : {inputX}");
+
+        return;
+
+        if (x == inputX)
+        {
+            //Debug.Log($"X : {x} // inputX : {inputX}");
+        }
+
         CameraRotation();
 
-        //* CursorInput
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (_isCursor == false)
-                _isCursor = true;
-            else
-                _isCursor = false;
-        }
-
-        //* Cursor
-        if (_isCursor)
-        {
-            Cursor.visible = false;
-            Cursor.lockState = CursorLockMode.Locked;
-        }
-        else
-        {
-            Cursor.visible = true;
-            Cursor.lockState = CursorLockMode.None;
-        }
-
+        //TODO: 카메라 움직임만 따로 클래스로
         //! 나중에 클래스로 뽑아내야지
-        float mouseY = Input.GetAxis("Mouse X") * mouseSpeed;
-        float mouseX = -Input.GetAxis("Mouse Y") * mouseSpeed;
+        float mouseY = _inputAction.MouseView.ReadValue<Vector2>().x * mouseSpeed;
 
         Quaternion rotationYaw = Quaternion.Euler(0.0f, mouseY * mouseSpeed, 0.0f);
-        //Pitch.
-        //Quaternion rotationPitch = Quaternion.Euler(-mouseX * mouseSpeed, 0.0f, 0.0f);
-
-        //Save rotation. We use this for smooth rotation.
-        //rotationCamera *= rotationPitch;
         rotationCharacter *= rotationYaw;
 
-        //Local Rotation.
-        //Quaternion localRotation = _virtualCam.transform.localRotation;
-        //Rotate local.
-        //localRotation *= rotationPitch;
-
-        //Clamp.
-        //localRotation = Clamp(localRotation);
-
-        //Rotate character.
-        _myrigid.MoveRotation(_myrigid.rotation * rotationYaw);
-
-        //Set.
-        //_virtualCam.transform.localRotation = localRotation;
+        _myrigid.MoveRotation(Quaternion.Slerp(_myrigid.rotation, rotationCharacter, Time.deltaTime * interpolationSpeed));
     }
 
-    [SerializeField]
-    private float lookSensitivity;
-
-    [SerializeField]
-    private float cameraRotationLimit;
-    private float currentCameraRotationX;
-
-    private void CameraRotation()
+    //TODO : 이거 세팅을 따로 클래스로 뽑아내서 만들어야 함
+    //! 일단 여기다가 플레이어 움직임이 아닌 세팅도 넣겠음
+    private void SettingsHandle(bool isPush)
     {
-        float _xRotation = Input.GetAxisRaw("Mouse Y");
-        float _cameraRotationX = _xRotation * lookSensitivity;
-
-        currentCameraRotationX -= _cameraRotationX;
-        currentCameraRotationX = Mathf.Clamp(currentCameraRotationX, -cameraRotationLimit, cameraRotationLimit);
-
-        _virtualCam.transform.localEulerAngles = new Vector3(currentCameraRotationX, 0f, 0f);
+        _isCursor = !isPush;
+        Debug.Log(_isCursor);
     }
 
+    [SerializeField] private float cameraRotationLimit;
+    private float currentCameraRotationX;
     private Quaternion rotationCharacter;
     private Quaternion rotationCamera;
 
-
     private Vector2 yClamp = new Vector2(-60, 60);
+
+    private void CameraRotation()
+    {
+        float _xRotation = _inputAction.MouseView.ReadValue<Vector2>().y;
+
+        Quaternion localRotation = transform.localRotation;
+        Quaternion rotationPitch = Quaternion.Euler(-_xRotation, 0.0f, 0.0f);
+
+        //Save rotation. We use this for smooth rotation.
+        rotationCamera *= rotationPitch;
+
+        //Local Rotation.
+
+        localRotation = Quaternion.Slerp(localRotation, rotationCamera, Time.deltaTime * interpolationSpeed);
+
+        _virtualCam.localRotation = localRotation;
+    }
 
     private Quaternion Clamp(Quaternion rotation)
     {
@@ -118,12 +116,8 @@ public class PlayerMovement : MonoBehaviour
 
     void FixedUpdate()
     {
-
-        //! 이거 리팩토링 조져 new Inputsystem으로
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        Vector3 moveVec = new Vector3(x, 0, z) * speed;
+        Vector2 movement = _inputAction.Movement.ReadValue<Vector2>();
+        Vector3 moveVec = new Vector3(movement.x, 0, movement.y) * speed;
 
         moveVec = transform.TransformDirection(moveVec);
 
@@ -131,4 +125,5 @@ public class PlayerMovement : MonoBehaviour
 
         //? 이건 절대 잊을 수 없지
     }
+
 }

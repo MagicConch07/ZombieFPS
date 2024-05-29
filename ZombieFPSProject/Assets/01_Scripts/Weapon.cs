@@ -23,7 +23,6 @@ public class Weapon : MonoBehaviour
     void Awake()
     {
         _perlin = _virCam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        Debug.Log(_perlin);
     }
 
     void Update()

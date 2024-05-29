@@ -119,7 +119,7 @@
                 {
                     "name": "",
                     "id": "578e0639-1aa9-4916-8112-3acef283ad33",
-                    "path": "<Mouse>/position",
+                    "path": "<Mouse>/delta",
                     "interactions": "",
                     "processors": "",
                     "groups": "PC",
@@ -179,6 +179,34 @@
                     "processors": "",
                     "groups": "PC",
                     "action": "Sit",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "a458752c-6f7b-4dc1-b1aa-66c76ff807a4",
+            "actions": [
+                {
+                    "name": "Settings",
+                    "type": "Button",
+                    "id": "232d30ca-fec6-4720-9a52-6c39b7a6549d",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "1c3b6218-3ea0-42a9-9e9b-2ef703283ef1",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Settings",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

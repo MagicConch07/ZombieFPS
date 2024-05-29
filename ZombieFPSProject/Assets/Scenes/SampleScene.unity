@@ -153,10 +153,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7738a26d7d1e49541bb279c09780af43, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 12
-  mouseSpeed: 2
+  _inputReader: {fileID: 11400000, guid: 783311ebbca53f14c8b494d0b7de227a, type: 2}
   _virtualCam: {fileID: 1647963920}
   _bodyObj: {fileID: 1803408533}
+  speed: 12
+  mouseSpeed: 2
   lookSensitivity: 3
   cameraRotationLimit: 60
 --- !u!54 &35728625
