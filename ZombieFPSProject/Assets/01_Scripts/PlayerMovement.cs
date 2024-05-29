@@ -15,6 +15,8 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Transform _virtualCam;
     [SerializeField] private Transform _bodyObj;
 
+    private bool _isCursor = false;
+
     void Awake()
     {
         _myrigid = GetComponent<Rigidbody>();
@@ -23,6 +25,27 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         CameraRotation();
+
+        //* CursorInput
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (_isCursor == false)
+                _isCursor = true;
+            else
+                _isCursor = false;
+        }
+
+        //* Cursor
+        if (_isCursor)
+        {
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
+        }
+        else
+        {
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
+        }
 
         //! 나중에 클래스로 뽑아내야지
         float mouseY = Input.GetAxis("Mouse X") * mouseSpeed;
