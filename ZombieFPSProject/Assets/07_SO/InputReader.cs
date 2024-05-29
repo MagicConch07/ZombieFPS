@@ -62,7 +62,6 @@ public class InputReader : ScriptableObject, FPSInput.IPlayerActions, FPSInput.I
     //* UI Zone
     public void OnSettings(InputAction.CallbackContext context)
     {
-        Debug.Log(context);
         if (context.started)
         {
             if (_isSettings == false)

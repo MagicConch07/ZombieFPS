@@ -156,9 +156,9 @@ MonoBehaviour:
   _inputReader: {fileID: 11400000, guid: 783311ebbca53f14c8b494d0b7de227a, type: 2}
   _virtualCam: {fileID: 1647963920}
   _bodyObj: {fileID: 1803408533}
+  _sensitivity: 0.5
   speed: 12
-  mouseSpeed: 2
-  lookSensitivity: 3
+  mouseSpeed: 1
   cameraRotationLimit: 60
 --- !u!54 &35728625
 Rigidbody:

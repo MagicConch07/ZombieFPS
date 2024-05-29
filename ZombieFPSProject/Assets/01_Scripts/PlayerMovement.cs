@@ -13,14 +13,14 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private InputReader _inputReader;
     [SerializeField] private Transform _virtualCam;
     [SerializeField] private Transform _bodyObj;
+    [SerializeField] private float _sensitivity = 0.1f;
 
     private FPSInput.PlayerActions _inputAction;
     private Rigidbody _myrigid;
     private bool _isCursor = false;
-    private float interpolationSpeed = 25.0f;
 
     public float speed = 15f;
-    public float mouseSpeed = 100f;
+    public float mouseSpeed = 1f;
 
 
     void Awake()
@@ -39,29 +39,16 @@ public class PlayerMovement : MonoBehaviour
 
     void LateUpdate()
     {
-        float x = Input.GetAxis("Mouse X");
-        float inputX = _inputAction.MouseView.ReadValue<Vector2>().x;
-
-
-        Debug.Log($"X : {x} // inputX : {inputX}");
-
-        return;
-
-        if (x == inputX)
-        {
-            //Debug.Log($"X : {x} // inputX : {inputX}");
-        }
-
         CameraRotation();
 
         //TODO: 카메라 움직임만 따로 클래스로
         //! 나중에 클래스로 뽑아내야지
-        float mouseY = _inputAction.MouseView.ReadValue<Vector2>().x * mouseSpeed;
+        float mouseY = _inputAction.MouseView.ReadValue<Vector2>().x * Mathf.Pow(_sensitivity, 2) * mouseSpeed;
 
-        Quaternion rotationYaw = Quaternion.Euler(0.0f, mouseY * mouseSpeed, 0.0f);
+        Quaternion rotationYaw = Quaternion.Euler(0.0f, mouseY, 0.0f);
         rotationCharacter *= rotationYaw;
 
-        _myrigid.MoveRotation(Quaternion.Slerp(_myrigid.rotation, rotationCharacter, Time.deltaTime * interpolationSpeed));
+        _myrigid.MoveRotation(_myrigid.rotation * rotationYaw);
     }
 
     //TODO : 이거 세팅을 따로 클래스로 뽑아내서 만들어야 함
@@ -73,25 +60,24 @@ public class PlayerMovement : MonoBehaviour
     }
 
     [SerializeField] private float cameraRotationLimit;
-    private float currentCameraRotationX;
     private Quaternion rotationCharacter;
     private Quaternion rotationCamera;
 
-    private Vector2 yClamp = new Vector2(-60, 60);
-
     private void CameraRotation()
     {
-        float _xRotation = _inputAction.MouseView.ReadValue<Vector2>().y;
+        float _xRotation = _inputAction.MouseView.ReadValue<Vector2>().y * Mathf.Pow(_sensitivity, 2) * mouseSpeed;
 
-        Quaternion localRotation = transform.localRotation;
+        Quaternion localRotation = _virtualCam.localRotation;
         Quaternion rotationPitch = Quaternion.Euler(-_xRotation, 0.0f, 0.0f);
 
-        //Save rotation. We use this for smooth rotation.
+        //Save rotation. We use this for smooth rotation2.
         rotationCamera *= rotationPitch;
 
         //Local Rotation.
 
-        localRotation = Quaternion.Slerp(localRotation, rotationCamera, Time.deltaTime * interpolationSpeed);
+        localRotation *= rotationPitch;
+
+        localRotation = Clamp(localRotation);
 
         _virtualCam.localRotation = localRotation;
     }
@@ -105,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
         float pitch = 2.0f * Mathf.Rad2Deg * Mathf.Atan(rotation.x);
 
         //Clamp.
-        pitch = Mathf.Clamp(pitch, yClamp.x, yClamp.y);
+        pitch = Mathf.Clamp(pitch, -cameraRotationLimit, cameraRotationLimit);
 
         // 다시 쿼터니언으로 변환
         rotation.x = Mathf.Tan(0.5f * Mathf.Deg2Rad * pitch);
