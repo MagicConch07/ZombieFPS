@@ -175,6 +175,6 @@ public class PlayerMovement : MonoBehaviour
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawLine(transform.position, Vector3.down * _rayDistance);
+        Gizmos.DrawLine(transform.position, Vector3.down);
     }
 }
