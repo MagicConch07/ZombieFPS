@@ -160,6 +160,11 @@ MonoBehaviour:
   cameraRotationLimit: 60
   speed: 12
   mouseSpeed: 1
+  _groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  _jumpPower: 5
+  _rayDistance: 1.2
 --- !u!54 &35728625
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -340,7 +345,7 @@ GameObject:
   - component: {fileID: 251549963}
   - component: {fileID: 251549962}
   - component: {fileID: 251549961}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ground
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -827,7 +832,7 @@ Camera:
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 183
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
